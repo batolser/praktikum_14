@@ -6,7 +6,7 @@
 
 [Ссылка на проект](https://github.com/batolser/praktikum_14.git)
 
-Version 0.0.2
+Version 0.0.3
 
 ###  ПО для выполнения работы:
 <li>
