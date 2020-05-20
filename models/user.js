@@ -6,13 +6,8 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    index: {
-      unique: true,
-    },
-    validate: {
-      validator: (value) => validator.isEmail(value),
-
-    },
+    unique: true,
+    validator: validator.isEmail,
   },
   password: {
     type: String,
@@ -35,9 +30,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: true,
-    validate: {
-      validator: (value) => validator.isURL(value),
-    },
+    validator: validator.isURL,
   },
 });
 

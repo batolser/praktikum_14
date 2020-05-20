@@ -3,9 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const config = require('./config/index');
 
-const { PORT = 3000 } = process.env;
+const { PORT } = require('./config');
+
 const app = express();
 
 
@@ -15,8 +15,6 @@ const {
 
 const cardsRouter = require('./routes/cards');
 const usersRouter = require('./routes/users');
-
-console.log(config);
 
 
 app.use(cookieParser());
@@ -56,7 +54,7 @@ app.use('/', (err, req, res, next) => { // eslint-disable-line
   }
 
   if (status === 500) {
-    console.error(err.stack || err);
+    // console.error(err.stack || err);
     message = 'Приозошла ошибка';
   }
 
@@ -65,6 +63,4 @@ app.use('/', (err, req, res, next) => { // eslint-disable-line
   next();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server started in ${PORT}`);
-});
+app.listen(PORT, () => {});
