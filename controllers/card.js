@@ -37,6 +37,16 @@ module.exports.getCardMiddleware = (req, res, next) => { // eslint-disable-line
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .then((cardId) => {
+      const { owner } = cardId;
+      return owner;
+    })
+    .then((owner) => {
+      if (req.user._id === owner.toString()) {
+        return Card.findByIdAndRemove(req.params.id);
+      }
+      return next({ status: 403, message: 'Вы не можете удалить чужую карточку' });
+    })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       next(err);

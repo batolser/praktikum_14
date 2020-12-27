@@ -2,9 +2,24 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
-const { PORT = 3000 } = process.env;
+const { PORT } = require('./config');
+
 const app = express();
+
+
+const {
+  createUser, login,
+} = require('./controllers/users');
+
+const cardsRouter = require('./routes/cards');
+const usersRouter = require('./routes/users');
+
+
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
@@ -12,21 +27,16 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useCreateIndex: true,
   useFindAndModify: false,
 });
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '5ea322fcd13b8b131679ad40',
+//   };
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+//   next();
+// });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5ea322fcd13b8b131679ad40',
-  };
-
-  next();
-});
-
-const cardsRouter = require('./routes/cards');
-const usersRouter = require('./routes/users');
-
+app.post('/signup', createUser);
+app.post('/signin', login);
 
 app.use('/', cardsRouter);
 app.use('/', usersRouter);
@@ -44,7 +54,7 @@ app.use('/', (err, req, res, next) => { // eslint-disable-line
   }
 
   if (status === 500) {
-    console.error(err.stack || err);
+    // console.error(err.stack || err);
     message = 'Приозошла ошибка';
   }
 

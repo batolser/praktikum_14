@@ -1,4 +1,9 @@
+const bcrypt = require('bcryptjs'); // импортируем bcrypt
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+// const { JWT_SECRET = 'JWT_SECRET' } = process.env;
+const { JWT_SECRET } = require('../config');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -23,10 +28,57 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  bcrypt.hash(password, 10)
 
-  User.create({ name, about, avatar })
+    .then((hash) => User.create({
+
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+
+    })
+      .then((user) => {
+        User.findOne({ _id: user._id });
+      }))
     .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      next(err);
+    });
+};
+
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  let user;
+  User.findOne({ email }).select('+password')
+    .then((u) => {
+      user = u;
+      if (!u) {
+        return next({ status: 401, message: 'Неправильные почта или пароль' });
+      }
+
+      return bcrypt.compare(password, u.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        return next({ status: 401, message: 'Неправильные почта или пароль' });
+      }
+      // аутентификация успешна
+      return jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    })
+    .then((token) => {
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      return res.send({ token });
+    })
     .catch((err) => {
       next(err);
     });

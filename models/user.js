@@ -1,6 +1,20 @@
 const mongoose = require('mongoose');
 
+const validator = require('validator');
+
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validator: validator.isEmail,
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
+    minlength: 8,
+  },
   name: {
     type: String, // имя — это строка
     required: true, // оно должно быть у каждого пользователя, так что имя — обязательное поле
@@ -16,7 +30,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: true,
-    match: /http[s]?:\/\/(www\.)?((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(\w+\.\w+))(:\d{2,5})?((\/[-a-zA-Z0-9\/]*)?)#?\d?/, // eslint-disable-line
+    validator: validator.isURL,
   },
 });
 
